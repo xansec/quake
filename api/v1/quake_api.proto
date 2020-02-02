@@ -1,0 +1,84 @@
+// Copyright 2020 Navibyte (https://navibyte.com). All rights reserved.
+// Use of this source code is governed by a MIT-style license, see the LICENSE.
+
+syntax = "proto3";
+
+package quake.api.v1;
+
+option go_package = "v1";
+
+import "quake/api/v1/quake.proto";
+
+// QuakeService provides RPC for data available on the web service of the USGS 
+// Earthquake Hazards program (as "GeoJSON Summary Format").
+service QuakeService {
+
+    // Get list of earthquakes for given period (like past day) and magnitude.
+    rpc ListEarthquakes(ListEarthquakesRequest) returns (ListEarthquakesResponse);
+
+    // Get earthquake by id.
+    rpc GetEarthquake(GetEarthquakeRequest) returns (GetEarthquakeResponse);
+
+}
+
+// ListEarthquakesRequest defines parameters for the ListEarthquakes method.
+message ListEarthquakesRequest {
+    // Magnitude sets the minimum magnitude for filtering earthquakes.
+    Magnitude magnitude = 1;
+
+    // Past is a period (like past day) filter.
+    Past past = 2;
+
+    // Limit is a maximum number of earthquakes to return. If 0 no limit apply.
+    uint64 limit = 3;
+
+    // Details, if true, tells to return earthquakes with detailed data.
+    bool details = 4;
+
+    // Focus is spatial filter - either around a position or inside bounds.
+    // Note that only one ot these properties can be set for a request.
+    oneof focus {
+        GeoPointE7 position = 5;
+        GeoBoundsE7 bounds = 6;
+    }
+}
+
+// ListEarthquakesResponse defines the response for the ListEarthquakes method.
+message ListEarthquakesResponse {
+    // EarthquakeCollection with earthquakes.
+    EarthquakeCollection collection = 1;
+}
+
+// GetEarthquakeRequest defines parameters for the GetEarthquake method.
+message GetEarthquakeRequest {
+    // ID of an earthquake to be searched.
+    string id = 1;
+
+    // Details, if true, tells to return an earthquake with detailed data.
+    bool details = 2;
+}
+
+// GetEarthquakeRequest defines the response for the GetEarthquake method.
+message GetEarthquakeResponse {
+    // Feature as an Earthquake.
+    Earthquake feature = 1;
+}
+
+// Magnitude is an enum for minimum earthquake magnitudes.
+enum Magnitude {
+    MAGNITUDE_UNSPECIFIED = 0;
+    MAGNITUDE_SIGNIFICANT = 1;
+    MAGNITUDE_M45_PLUS = 2;
+    MAGNITUDE_M25_PLUS = 3;
+    MAGNITUDE_M10_PLUS = 4;
+    MAGNITUDE_ALL = 5;
+}
+
+// Past is an enum for periods for filtering.
+enum Past {
+    PAST_UNSPECIFIED = 0;
+    PAST_HOUR = 1;
+    PAST_DAY = 2;
+    PAST_7DAYS = 3;
+    PAST_30DAYS = 4;
+}

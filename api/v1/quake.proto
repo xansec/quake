@@ -1,0 +1,237 @@
+// Copyright 2020 Navibyte (https://navibyte.com). All rights reserved.
+// Use of this source code is governed by a MIT-style license, see the LICENSE.
+
+// Schema documentation contains snippets from:
+// https://earthquake.usgs.gov/data/comcat/data-eventterms.php
+// https://earthquake.usgs.gov/data/comcat/data-metadata.php
+// https://earthquake.usgs.gov/data/pager/background.php
+
+syntax = "proto3";
+
+package quake.api.v1;
+ 
+option go_package = "v1";
+
+// EarthquakeCollection represents a feature collection of earthquakes based on 
+// the "GeoJSON Summary Format" of the USGS Earthquake Hazards program.
+message EarthquakeCollection {
+    // Metadata for a set of earthquakes.
+    EarthquakeMetadata metadata = 1;
+
+    // Bounds for a set of earthquakes as geographical bounding box.
+    GeoBoundsE7 bounds = 2;
+
+    // Features contains a list of Earthquake objects.
+    repeated Earthquake features = 3; 
+}
+
+// Earthquake feature with position (point geometry) and some key properties.
+message Earthquake {
+    // USGS docs: "A (generally) two-character network identifier with a (generally) 
+    // eight-character network-assigned code. A unique identifier for the event. 
+    // This is the current preferred id for the event, and may change over time".
+    string id = 1;
+    
+    // USGS docs: "The coordinates of the epicenter in the WGS84 reference frame and
+    // the depth where the earthquake begins to rupture".
+    GeoPointE7 position = 2;
+
+    // USGS docs: "The magnitude for the event". Typical value range is [-1.0, 10.0].
+    // GeoJSON property: "mag".
+    float magnitude = 3;
+
+    // USGS docs: "Textual description of named geographic region near to the event".
+    string place = 4;
+
+    // USGS docs: "Time (seconds) when the event occurred".
+    // Time is UTC time since Unix epoch 1970-01-01T00:00:00Z.
+    int64 time = 5;
+
+    // USGS docs: "Time (seconds) when the event was most recently updated".
+    // Time is UTC time since Unix epoch 1970-01-01T00:00:00Z.
+    // GeoJSON property: "updated".
+    int64 updated_time = 6;
+
+    // USGS docs: "Timezone offset from UTC in minutes at the event epicenter".
+    // GeoJSON property: "tz".
+    sint32 timezone_offset = 7;
+
+    // USGS docs: "The suggested level of response".
+    Alert alert = 8;
+
+    // USGS docs: "A number describing how significant the event is. Larger numbers indicate 
+    // a more significant event". Typical value range is [0, 1000].
+    // GeoJSON property: "sig".
+    int32 significance = 9;
+
+    // Detailed information when available. Note that this field can be null.
+    EarthquakeDetails details = 10;
+}
+
+// Earthquake detailed properties.
+message EarthquakeDetails {
+    // USGS docs: "A (generally) two-character network identifier with a (generally) 
+    // eight-character network-assigned code. A unique identifier for the event. 
+    // This is the current preferred id for the event, and may change over time".
+    string id = 1;
+
+    // USGS docs: "Link to USGS Event Page for event".
+    string url = 2;
+
+    // USGS docs: "Link to GeoJSON detail feed from a GeoJSON summary feed".
+    // GeoJSON property: "detail".
+    string detail_feed_url = 3;
+    
+    // USGS docs: "The total number of felt reports submitted to the DYFI? system".
+    // Typical values: [44, 843].
+    int32 felt = 4;
+
+    // USGS docs: "The maximum reported intensity for the event. Computed by DYFI".
+    // Typical value range is [0.0, 10.0].
+    // GeoJSON property: "cdi".
+    float reported_intensity = 5;
+
+    // USGS docs: "The maximum estimated instrumental intensity for the event. 
+    // Computed by ShakeMap". Typical value range is [0.0, 10.0].
+    // GeoJSON property: "mmi".
+    float estimated_intensity = 6;
+
+    // USGS docs: "Status indicates whether the event has been reviewed by a human".
+    Status status = 7;
+
+    // USGS docs: "True for large events in oceanic regions, false otherwise. Does not 
+    // indicate if a tsunami actually did or will exist".
+    bool tsunami = 8;
+
+    // USGS docs: "The ID of a data contributor. Identifies the network considered to be 
+    // the preferred source of information for this event". Typical values:
+    // ak, at, ci, hv, ld, mb, nc, nm, nn, pr, pt, se, us, uu, uw.
+    // GeoJSON property: "net".
+    string network = 9;
+
+    // USGS docs: "An identifying code assigned by - and unique from - the corresponding 
+    // source for the event". Typical values: "2013lgaz", "c000f1jy", "71935551".
+    string code = 10;
+
+    // USGS docs: "A comma-separated list of event ids that are associated to an event".
+    // Typical values: ",ci15296281,us2013mqbd,at00mji9pf,".
+    string ids = 11;
+
+    // USGS docs: "A comma-separated list of network contributors".
+    // Typical values: ",us,nc,ci,".
+    string sources = 12;
+
+    // USGS docs: "A comma-separated list of product types associated to this event". 
+    // Typical values: “,cap,dyfi,general-link,origin,p-wave-travel-times,phase-data,”.
+    // GeoJSON property: "types".
+    string product_types = 13;
+
+    // USGS docs: "The total number of seismic stations used to determine 
+    // earthquake location".
+    int32 nst = 14;
+
+    // USGS docs: "Horizontal distance from the epicenter to the nearest station (in 
+    // degrees)". Typical values: [0.4, 7.1].
+    float dmin = 15;
+
+    // USGS docs: "The root-mean-square (RMS) travel time residual, in sec, using all 
+    // weights". Typical values: [0.13,1.39].
+    float rms = 16;
+
+    // USGS docs: "The largest azimuthal gap between azimuthally adjacent stations (in 
+    // degrees)"". Typical values: [0.0, 180.0].
+    float gap = 17;
+
+    // USGS docs: "The method or algorithm used to calculate the preferred magnitude for the 
+    // event". Typical values: “Md”, “Ml”, “Ms”, “Mw”, “Me”, “Mi”, “Mb”, “MLg”.
+    // More information: 
+    // https://www.usgs.gov/natural-hazards/earthquake-hazards/science/magnitude-types?qt-science_center_objects=0#qt-science_center_objects
+    string mag_type = 18;
+
+    // USGS docs: "Type of seismic event". 
+    Type type = 19;
+}
+
+// EarthquakeMetadata contains meta data for a set of earthquakes.
+message EarthquakeMetadata {
+    // USGS docs: "Time (seconds) when the feed was most recently updated".
+    // Time is UTC time since Unix epoch 1970-01-01T00:00:00Z.
+   int64 generated_time = 1;
+
+    // USGS docs: "Url of the feed".
+    string url = 2;
+
+    // USGS docs: "The title of the feed". Typical values: 
+    // “USGS Magnitude 1+ Earthquakes, Past Day”, 
+    // “USGS Magnitude 4.5+ Earthquakes, Past Month”
+    string title = 3;
+
+    // USGS docs: "Version of API that generated feed".
+    string api = 4;
+
+    // USGS docs: "Number of earthquakes in feed".
+    int32 count = 5;
+
+    // USGS docs: "HTTP status code of response".
+    string http_status = 6;
+}
+
+// Alert according to https://earthquake.usgs.gov/data/pager/background.php
+enum Alert {
+    ALERT_UNSPECIFIED = 0; 
+
+    // The suggested levels of response: international.
+    ALERT_RED = 1;
+
+    // The suggested levels of response: national.
+    ALERT_ORANGE = 2;
+
+    // The suggested levels of response: local/regional.
+    ALERT_YELLOW = 3;
+
+    // The suggested levels of response: no response needed.
+    ALERT_GREEN = 4;
+}
+
+// USGS docs: "Status indicates whether the event has been reviewed by a human".
+enum Status {
+    STATUS_UNSPECIFIED = 0;
+
+    // USGS docs: "Automatic events are directly posted by automatic processing systems".
+    STATUS_AUTOMATIC = 1;
+
+    // USGS docs: "Reviewed events have been looked at by a human".
+    STATUS_REVIEWED = 2;
+
+    STATUS_DELETED = 3;
+}
+
+// USGS docs: "Type indicates the type of a seismic event".
+enum Type {
+    TYPE_UNSPECIFIED= 0;
+
+    TYPE_EARTHQUAKE = 1;
+
+    TYPE_QUARRY = 2;
+}
+
+// GeoBoundsE7 is a geographic bounding box (WGS84 latitude and longitude 
+// are in E7 format, height is centimeters with negative values meaning depth).
+// The E7 format with 32 bit ints is used to optimize wire transfer.
+message GeoBoundsE7 {
+    sfixed32 min_latitude = 1;
+    sfixed32 min_longitude = 2;
+    sint32 min_height = 3;
+    sfixed32 max_latitude = 4;
+    sfixed32 max_longitude = 5;
+    sint32 max_height = 6;
+}
+
+// GeoPointE7 is a geographic point (WGS84 latitude and longitude are
+// in E7 format and height is centimeters with negative values meaning depth).
+// The E7 format with 32 bit ints is used to optimize wire transfer.
+message GeoPointE7 {
+    sfixed32 latitude = 1;
+    sfixed32 longitude = 2;
+    sint32 height = 3;
+}
