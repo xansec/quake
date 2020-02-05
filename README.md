@@ -193,7 +193,7 @@ Package `github.com/navibyte/quake/internal/jsonlib`:
 
 Source         | Description
 -------------- | ----------- 
-cursor.go      | A helper wrapper to [gjson](github.com/tidwall/gjson) library that is a fast JSON parser for Go.
+cursor.go      | A helper wrapper to [gjson](https://github.com/tidwall/gjson) library that is a fast JSON parser for Go.
 
 Package `github.com/navibyte/quake/internal/mathlib`:
 
