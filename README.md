@@ -97,6 +97,7 @@ ListEarthquakes | Get list of earthquakes for given period and magnitude.
 GetEarthquake   | Get an earthquake by id.
 
 Service definition as a diagram:
+
 <img src="assets/diagrams/services.png" width="60%" title="Quake - gRPC service definition" />
 
 Data structures used by the methods represent data based on the
@@ -128,6 +129,7 @@ Status | Whether earthquake data is reviewed by a human or not.
 Type   | A type of a seismic event, like 'earthquake' or 'quarry'.
 
 Message definitions as a diagram:
+
 <img src="assets/diagrams/messages.png" width="60%" title="Quake - gRPC message definitions" />
 
 ## Go module
