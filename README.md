@@ -98,7 +98,7 @@ GetEarthquake   | Get an earthquake by id.
 
 Service definition as a diagram:
 
-<img src="assets/diagrams/services.png" width="60%" title="Quake - gRPC service definition" />
+<img src="assets/diagrams/services.png" width="90%" title="Quake - gRPC service definition" />
 
 Data structures used by the methods represent data based on the
 [GeoJSON Summary Format](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) of the USGS Earthquake Hazards program. Data structures are 
