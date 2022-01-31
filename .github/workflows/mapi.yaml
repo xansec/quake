@@ -31,6 +31,7 @@ jobs:
         mapi-token: ${{ secrets.MAPI_TOKEN }}
         api-url: http://localhost:8081
         api-spec: quake_api.swagger.json
+        target: forallsecure/abrewer-quake-grpc-example
         sarif-report: mapi.sarif
         html-report: mapi.html
 
