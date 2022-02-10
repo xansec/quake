@@ -1,4 +1,5 @@
 # Earthquakes - the gRPC service
+[![Mayhem for API](https://mayhem4api.forallsecure.com/api/v1/api-target/forallsecure/abrewer-quake-grpc-example/badge/icon.svg?scm_branch=mapi-action)](https://mayhem4api.forallsecure.com/forallsecure/abrewer-quake-grpc-example/latest-job?scm_branch=mapi-action)
 
 A gRPC service for monitoring earthquakes based on data provided by the USGS.
 
