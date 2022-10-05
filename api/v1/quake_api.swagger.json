@@ -1,0 +1,478 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "quake_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "QuakeService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/quake.api.v1.QuakeService/GetEarthquake": {
+      "post": {
+        "summary": "Get earthquake by id.",
+        "operationId": "QuakeService_GetEarthquake",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetEarthquakeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetEarthquakeRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QuakeService"
+        ]
+      }
+    },
+    "/quake.api.v1.QuakeService/ListEarthquakes": {
+      "post": {
+        "summary": "Get list of earthquakes for given period (like past day) and magnitude.",
+        "operationId": "QuakeService_ListEarthquakes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListEarthquakesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListEarthquakesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QuakeService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiv1Status": {
+      "type": "string",
+      "enum": [
+        "STATUS_UNSPECIFIED",
+        "STATUS_AUTOMATIC",
+        "STATUS_REVIEWED",
+        "STATUS_DELETED"
+      ],
+      "default": "STATUS_UNSPECIFIED",
+      "description": "USGS docs: \"Status indicates whether the event has been reviewed by a human\".\n\n - STATUS_AUTOMATIC: USGS docs: \"Automatic events are directly posted by automatic processing systems\".\n - STATUS_REVIEWED: USGS docs: \"Reviewed events have been looked at by a human\"."
+    },
+    "googlerpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "v1Alert": {
+      "type": "string",
+      "enum": [
+        "ALERT_UNSPECIFIED",
+        "ALERT_RED",
+        "ALERT_ORANGE",
+        "ALERT_YELLOW",
+        "ALERT_GREEN"
+      ],
+      "default": "ALERT_UNSPECIFIED",
+      "description": "- ALERT_RED: The suggested levels of response: international.\n - ALERT_ORANGE: The suggested levels of response: national.\n - ALERT_YELLOW: The suggested levels of response: local/regional.\n - ALERT_GREEN: The suggested levels of response: no response needed.",
+      "title": "Alert according to https://earthquake.usgs.gov/data/pager/background.php"
+    },
+    "v1Earthquake": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "USGS docs: \"A (generally) two-character network identifier with a (generally)\neight-character network-assigned code. A unique identifier for the event.\nThis is the current preferred id for the event, and may change over time\"."
+        },
+        "position": {
+          "$ref": "#/definitions/v1GeoPointE7",
+          "description": "USGS docs: \"The coordinates of the epicenter in the WGS84 reference frame and\nthe depth where the earthquake begins to rupture\"."
+        },
+        "magnitude": {
+          "type": "number",
+          "format": "float",
+          "description": "USGS docs: \"The magnitude for the event\". Typical value range is [-1.0, 10.0].\nGeoJSON property: \"mag\"."
+        },
+        "place": {
+          "type": "string",
+          "description": "USGS docs: \"Textual description of named geographic region near to the event\"."
+        },
+        "time": {
+          "type": "string",
+          "format": "int64",
+          "description": "USGS docs: \"Time (seconds) when the event occurred\".\nTime is UTC time since Unix epoch 1970-01-01T00:00:00Z."
+        },
+        "updatedTime": {
+          "type": "string",
+          "format": "int64",
+          "description": "USGS docs: \"Time (seconds) when the event was most recently updated\".\nTime is UTC time since Unix epoch 1970-01-01T00:00:00Z.\nGeoJSON property: \"updated\"."
+        },
+        "timezoneOffset": {
+          "type": "integer",
+          "format": "int32",
+          "description": "USGS docs: \"Timezone offset from UTC in minutes at the event epicenter\".\nGeoJSON property: \"tz\"."
+        },
+        "alert": {
+          "$ref": "#/definitions/v1Alert",
+          "description": "USGS docs: \"The suggested level of response\"."
+        },
+        "significance": {
+          "type": "integer",
+          "format": "int32",
+          "description": "USGS docs: \"A number describing how significant the event is. Larger numbers indicate\na more significant event\". Typical value range is [0, 1000].\nGeoJSON property: \"sig\"."
+        },
+        "details": {
+          "$ref": "#/definitions/v1EarthquakeDetails",
+          "description": "Detailed information when available. Note that this field can be null."
+        }
+      },
+      "description": "Earthquake feature with position (point geometry) and some key properties."
+    },
+    "v1EarthquakeCollection": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1EarthquakeMetadata",
+          "description": "Metadata for a set of earthquakes."
+        },
+        "bounds": {
+          "$ref": "#/definitions/v1GeoBoundsE7",
+          "description": "Bounds for a set of earthquakes as geographical bounding box."
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Earthquake"
+          },
+          "description": "Features contains a list of Earthquake objects."
+        }
+      },
+      "description": "EarthquakeCollection represents a feature collection of earthquakes based on\nthe \"GeoJSON Summary Format\" of the USGS Earthquake Hazards program."
+    },
+    "v1EarthquakeDetails": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "USGS docs: \"A (generally) two-character network identifier with a (generally)\neight-character network-assigned code. A unique identifier for the event.\nThis is the current preferred id for the event, and may change over time\"."
+        },
+        "url": {
+          "type": "string",
+          "description": "USGS docs: \"Link to USGS Event Page for event\"."
+        },
+        "detailFeedUrl": {
+          "type": "string",
+          "description": "USGS docs: \"Link to GeoJSON detail feed from a GeoJSON summary feed\".\nGeoJSON property: \"detail\"."
+        },
+        "felt": {
+          "type": "integer",
+          "format": "int32",
+          "description": "USGS docs: \"The total number of felt reports submitted to the DYFI? system\".\nTypical values: [44, 843]."
+        },
+        "reportedIntensity": {
+          "type": "number",
+          "format": "float",
+          "description": "USGS docs: \"The maximum reported intensity for the event. Computed by DYFI\".\nTypical value range is [0.0, 10.0].\nGeoJSON property: \"cdi\"."
+        },
+        "estimatedIntensity": {
+          "type": "number",
+          "format": "float",
+          "description": "USGS docs: \"The maximum estimated instrumental intensity for the event.\nComputed by ShakeMap\". Typical value range is [0.0, 10.0].\nGeoJSON property: \"mmi\"."
+        },
+        "status": {
+          "$ref": "#/definitions/apiv1Status",
+          "description": "USGS docs: \"Status indicates whether the event has been reviewed by a human\"."
+        },
+        "tsunami": {
+          "type": "boolean",
+          "description": "USGS docs: \"True for large events in oceanic regions, false otherwise. Does not\nindicate if a tsunami actually did or will exist\"."
+        },
+        "network": {
+          "type": "string",
+          "description": "USGS docs: \"The ID of a data contributor. Identifies the network considered to be\nthe preferred source of information for this event\". Typical values:\nak, at, ci, hv, ld, mb, nc, nm, nn, pr, pt, se, us, uu, uw.\nGeoJSON property: \"net\"."
+        },
+        "code": {
+          "type": "string",
+          "description": "USGS docs: \"An identifying code assigned by - and unique from - the corresponding\nsource for the event\". Typical values: \"2013lgaz\", \"c000f1jy\", \"71935551\"."
+        },
+        "ids": {
+          "type": "string",
+          "description": "USGS docs: \"A comma-separated list of event ids that are associated to an event\".\nTypical values: \",ci15296281,us2013mqbd,at00mji9pf,\"."
+        },
+        "sources": {
+          "type": "string",
+          "description": "USGS docs: \"A comma-separated list of network contributors\".\nTypical values: \",us,nc,ci,\"."
+        },
+        "productTypes": {
+          "type": "string",
+          "description": "USGS docs: \"A comma-separated list of product types associated to this event\".\nTypical values: “,cap,dyfi,general-link,origin,p-wave-travel-times,phase-data,”.\nGeoJSON property: \"types\"."
+        },
+        "nst": {
+          "type": "integer",
+          "format": "int32",
+          "description": "USGS docs: \"The total number of seismic stations used to determine\nearthquake location\"."
+        },
+        "dmin": {
+          "type": "number",
+          "format": "float",
+          "description": "USGS docs: \"Horizontal distance from the epicenter to the nearest station (in\ndegrees)\". Typical values: [0.4, 7.1]."
+        },
+        "rms": {
+          "type": "number",
+          "format": "float",
+          "description": "USGS docs: \"The root-mean-square (RMS) travel time residual, in sec, using all\nweights\". Typical values: [0.13,1.39]."
+        },
+        "gap": {
+          "type": "number",
+          "format": "float",
+          "description": "USGS docs: \"The largest azimuthal gap between azimuthally adjacent stations (in\ndegrees)\"\". Typical values: [0.0, 180.0]."
+        },
+        "magType": {
+          "type": "string",
+          "title": "USGS docs: \"The method or algorithm used to calculate the preferred magnitude for the\nevent\". Typical values: “Md”, “Ml”, “Ms”, “Mw”, “Me”, “Mi”, “Mb”, “MLg”.\nMore information:\nhttps://www.usgs.gov/natural-hazards/earthquake-hazards/science/magnitude-types?qt-science_center_objects=0#qt-science_center_objects"
+        },
+        "type": {
+          "$ref": "#/definitions/v1Type",
+          "description": "USGS docs: \"Type of seismic event\"."
+        }
+      },
+      "description": "Earthquake detailed properties."
+    },
+    "v1EarthquakeMetadata": {
+      "type": "object",
+      "properties": {
+        "generatedTime": {
+          "type": "string",
+          "format": "int64",
+          "description": "USGS docs: \"Time (seconds) when the feed was most recently updated\".\nTime is UTC time since Unix epoch 1970-01-01T00:00:00Z."
+        },
+        "url": {
+          "type": "string",
+          "description": "USGS docs: \"Url of the feed\"."
+        },
+        "title": {
+          "type": "string",
+          "title": "USGS docs: \"The title of the feed\". Typical values:\n“USGS Magnitude 1+ Earthquakes, Past Day”,\n“USGS Magnitude 4.5+ Earthquakes, Past Month”"
+        },
+        "api": {
+          "type": "string",
+          "description": "USGS docs: \"Version of API that generated feed\"."
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "USGS docs: \"Number of earthquakes in feed\"."
+        },
+        "httpStatus": {
+          "type": "string",
+          "description": "USGS docs: \"HTTP status code of response\"."
+        }
+      },
+      "description": "EarthquakeMetadata contains meta data for a set of earthquakes."
+    },
+    "v1GeoBoundsE7": {
+      "type": "object",
+      "properties": {
+        "minLatitude": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "minLongitude": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "minHeight": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "maxLatitude": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "maxLongitude": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "maxHeight": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "description": "GeoBoundsE7 is a geographic bounding box (WGS84 latitude and longitude\nare in E7 format, height is centimeters with negative values meaning depth).\nThe E7 format with 32 bit ints is used to optimize wire transfer."
+    },
+    "v1GeoPointE7": {
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "longitude": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "description": "GeoPointE7 is a geographic point (WGS84 latitude and longitude are\nin E7 format and height is centimeters with negative values meaning depth).\nThe E7 format with 32 bit ints is used to optimize wire transfer."
+    },
+    "v1GetEarthquakeRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID of an earthquake to be searched."
+        },
+        "details": {
+          "type": "boolean",
+          "description": "Details, if true, tells to return an earthquake with detailed data."
+        }
+      },
+      "description": "GetEarthquakeRequest defines parameters for the GetEarthquake method."
+    },
+    "v1GetEarthquakeResponse": {
+      "type": "object",
+      "properties": {
+        "feature": {
+          "$ref": "#/definitions/v1Earthquake",
+          "description": "Feature as an Earthquake."
+        }
+      },
+      "description": "GetEarthquakeRequest defines the response for the GetEarthquake method."
+    },
+    "v1ListEarthquakesRequest": {
+      "type": "object",
+      "properties": {
+        "magnitude": {
+          "$ref": "#/definitions/v1Magnitude",
+          "description": "Magnitude sets the minimum magnitude for filtering earthquakes."
+        },
+        "past": {
+          "$ref": "#/definitions/v1Past",
+          "description": "Past is a period (like past day) filter."
+        },
+        "limit": {
+          "type": "string",
+          "format": "uint64",
+          "description": "Limit is a maximum number of earthquakes to return. If 0 no limit apply."
+        },
+        "details": {
+          "type": "boolean",
+          "description": "Details, if true, tells to return earthquakes with detailed data."
+        },
+        "position": {
+          "$ref": "#/definitions/v1GeoPointE7"
+        },
+        "bounds": {
+          "$ref": "#/definitions/v1GeoBoundsE7"
+        }
+      },
+      "description": "ListEarthquakesRequest defines parameters for the ListEarthquakes method."
+    },
+    "v1ListEarthquakesResponse": {
+      "type": "object",
+      "properties": {
+        "collection": {
+          "$ref": "#/definitions/v1EarthquakeCollection",
+          "description": "EarthquakeCollection with earthquakes."
+        }
+      },
+      "description": "ListEarthquakesResponse defines the response for the ListEarthquakes method."
+    },
+    "v1Magnitude": {
+      "type": "string",
+      "enum": [
+        "MAGNITUDE_UNSPECIFIED",
+        "MAGNITUDE_SIGNIFICANT",
+        "MAGNITUDE_M45_PLUS",
+        "MAGNITUDE_M25_PLUS",
+        "MAGNITUDE_M10_PLUS",
+        "MAGNITUDE_ALL"
+      ],
+      "default": "MAGNITUDE_UNSPECIFIED",
+      "description": "Magnitude is an enum for minimum earthquake magnitudes."
+    },
+    "v1Past": {
+      "type": "string",
+      "enum": [
+        "PAST_UNSPECIFIED",
+        "PAST_HOUR",
+        "PAST_DAY",
+        "PAST_7DAYS",
+        "PAST_30DAYS"
+      ],
+      "default": "PAST_UNSPECIFIED",
+      "description": "Past is an enum for periods for filtering."
+    },
+    "v1Type": {
+      "type": "string",
+      "enum": [
+        "TYPE_UNSPECIFIED",
+        "TYPE_EARTHQUAKE",
+        "TYPE_QUARRY"
+      ],
+      "default": "TYPE_UNSPECIFIED",
+      "description": "USGS docs: \"Type indicates the type of a seismic event\"."
+    }
+  }
+}
